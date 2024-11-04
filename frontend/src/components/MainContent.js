@@ -16,13 +16,12 @@ function MainContent({ user, onUpdateUser }) {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(`https://dummyjson.com/users/${user.id}`, {
+      const response = await axios.put(`http://127.0.0.1:8000/users/${user.id}`, {
         firstName: editableUser.firstName,
         lastName: editableUser.lastName,
-        email: editableUser.email,
-        username: editableUser.username,
         age: editableUser.age,
-        address: editableUser.address,
+        gender: editableUser.gender,
+        email: editableUser.email,
         phone: editableUser.phone,
       });
       onUpdateUser(response.data);
@@ -46,21 +45,17 @@ function MainContent({ user, onUpdateUser }) {
               { label: 'First Name', name: 'firstName', type: 'text', value: editableUser.firstName },
               { label: 'Last Name', name: 'lastName', type: 'text', value: editableUser.lastName },
               { label: 'Email', name: 'email', type: 'email', value: editableUser.email },
-              { label: 'Username', name: 'username', type: 'text', value: editableUser.username },
               { label: 'Age', name: 'age', type: 'number', value: editableUser.age },
-              {
-                label: 'City', name: 'city', type: 'text', value: editableUser.address.city,
-                onChange: e => setEditableUser({ ...editableUser, address: { ...editableUser.address, city: e.target.value } })
-              },
+              { label: 'Gender', name: 'gender', type: 'text', value: editableUser.gender },
               { label: 'Phone', name: 'phone', type: 'text', value: editableUser.phone },
-            ].map(({ label, name, type, value, onChange = handleChange }) => (
+            ].map(({ label, name, type, value }) => (
               <label key={name} className="block font-semibold">
                 {label}:
                 <input
                   type={type}
                   name={name}
                   value={value}
-                  onChange={onChange}
+                  onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-primary focus:border-primary"
                 />
               </label>
@@ -91,9 +86,8 @@ function MainContent({ user, onUpdateUser }) {
             </h2>
             <div className="text-primary space-y-2">
               <p><span className="font-semibold">Email:</span> {user.email}</p>
-              <p><span className="font-semibold">Username:</span> {user.username}</p>
               <p><span className="font-semibold">Age:</span> {user.age}</p>
-              <p><span className="font-semibold">City:</span> {user.address.city}</p>
+              <p><span className="font-semibold">Gender:</span> {user.gender}</p>
               <p><span className="font-semibold">Phone:</span> {user.phone}</p>
             </div>
             <button

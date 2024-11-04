@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Sidebar({ users, onUserSelect }) {
+function Sidebar({ users = [], onUserSelect }) {
   return (
     <aside className="sidebar ml-10">
       <h2 className="text-primary mt-5 text-lg">Users</h2>

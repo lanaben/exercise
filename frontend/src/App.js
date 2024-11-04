@@ -10,8 +10,9 @@ function App() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('https://dummyjson.com/users?limit=20');
-        setUsers(response.data.users);
+        const response = await axios.get('http://127.0.0.1:8000/users');
+        console.log("Response data:", response.data); 
+        setUsers(response.data);
       } catch (err) {
         console.error("Error fetching users:", err);
       }
