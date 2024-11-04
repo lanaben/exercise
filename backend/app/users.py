@@ -1,3 +1,5 @@
+# from database.database import user_collection
+
 def get_users():
     return [
         {
@@ -46,3 +48,11 @@ def get_users():
             "phone": "123-456-7890",
         }
     ]
+
+# def insert_users():
+#     users = get_users()
+#     if users:
+#         user_collection.insert_many(users)
+#         print("Users inserted successfully.")
+#     else:
+#         print("No users to insert.")
