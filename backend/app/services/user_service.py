@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from bson import ObjectId
 from pymongo.collection import Collection
 from models.user_model import UserUpdate, UserResponse
@@ -14,9 +14,14 @@ class UserService:
             return UserResponse(**user)
         return None
 
-    def get_all_users(self):
+    def get_all_users(self, limit: Optional[int] = None) -> List[UserResponse]:
         users = []
-        for user in self.collection.find():
+        query = self.collection.find()
+        
+        if limit is not None:
+            query = query.limit(limit) 
+        
+        for user in query:
             user["id"] = str(user["_id"])
             users.append(UserResponse(**user))
         return users

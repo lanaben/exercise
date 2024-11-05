@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { updateUser, deleteUser } from '../services/userService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
 
-function MainContent({ user, onUpdateUser }) {
+function MainContent({ user, onUpdateUser, onDeleteUser }) {
   const [editMode, setEditMode] = useState(false);
   const [editableUser, setEditableUser] = useState(user);
 
@@ -9,96 +11,93 @@ function MainContent({ user, onUpdateUser }) {
     setEditableUser(user);
   }, [user]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditableUser({ ...editableUser, [name]: value });
+  const handleChange = ({ target: { name, value } }) => {
+    setEditableUser((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
-    try {
-      const response = await axios.put(`http://127.0.0.1:8000/users/${user.id}`, {
-        firstName: editableUser.firstName,
-        lastName: editableUser.lastName,
-        age: editableUser.age,
-        gender: editableUser.gender,
-        email: editableUser.email,
-        phone: editableUser.phone,
-      });
-      onUpdateUser(response.data);
+    const updatedUser = await updateUser(user.id, editableUser);
+    if (updatedUser) {
+      onUpdateUser(updatedUser);
+      toast.success("User updated successfully.");
       setEditMode(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteUser(user.id);
+      onDeleteUser(user);
     } catch (error) {
-      console.error("Failed to update user:", error);
+      toast.error("Failed to delete user. Please try again.");
     }
   };
 
   if (!user) {
-    return <main className="main-content mt-16 ml-5">Select a user from the sidebar to view more details.</main>;
+    return <main className="p-8 text-center pt-16 text-gray-500">Select a user from the sidebar to view details.</main>;
   }
 
   return (
-    <main className="main-content">
-      {editMode ? (
-        <div className="bg-white rounded-lg p-6 max-w-md mx-5 mt-16 shadow-md">
-          <h2 className="text-2xl font-bold text-primary mb-6">Edit User</h2>
-          <form className="space-y-4 text-primary">
-            {[
-              { label: 'First Name', name: 'firstName', type: 'text', value: editableUser.firstName },
-              { label: 'Last Name', name: 'lastName', type: 'text', value: editableUser.lastName },
-              { label: 'Email', name: 'email', type: 'email', value: editableUser.email },
-              { label: 'Age', name: 'age', type: 'number', value: editableUser.age },
-              { label: 'Gender', name: 'gender', type: 'text', value: editableUser.gender },
-              { label: 'Phone', name: 'phone', type: 'text', value: editableUser.phone },
-            ].map(({ label, name, type, value }) => (
-              <label key={name} className="block font-semibold">
-                {label}:
-                <input
-                  type={type}
-                  name={name}
-                  value={value}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                />
-              </label>
-            ))}
-            <div className="flex justify-end space-x-4 mt-6">
-              <button
-                onClick={handleSave}
-                type="button"
-                className="px-4 py-2 bg-secondary text-white font-semibold rounded-lg shadow-md hover:opacity-70 transition"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setEditMode(false)}
-                type="button"
-                className="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-400 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <>
-          <div className="bg-white rounded-lg p-6 max-w-md mx-5 mt-16">
-            <h2 className="text-2xl font-bold text-primary mb-4">
-              {user.firstName} {user.lastName}
-            </h2>
-            <div className="text-primary space-y-2">
-              <p><span className="font-semibold">Email:</span> {user.email}</p>
-              <p><span className="font-semibold">Age:</span> {user.age}</p>
-              <p><span className="font-semibold">Gender:</span> {user.gender}</p>
-              <p><span className="font-semibold">Phone:</span> {user.phone}</p>
+    <main className="flex-1 pt-16 px-8">
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar={true} />
+      <div className="bg-white p-6 mx-auto">
+        {editMode ? (
+          <>
+            <h2 className="text-2xl font-semibold text-primary mb-6">Edit User</h2>
+            <form className="space-y-4">
+              {['firstName', 'lastName', 'email', 'age', 'gender', 'phone'].map((field) => (
+                <label key={field} className="block">
+                  <span className="block font-semibold capitalize">{field}:</span>
+                  <input
+                    type={field === 'age' ? 'number' : 'text'}
+                    name={field}
+                    value={editableUser[field] || ''}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-2 border rounded-md focus:ring-primary focus:border-primary"
+                  />
+                </label>
+              ))}
+              <div className="flex justify-end mt-6 space-x-3">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-secondary text-white font-semibold hover:opacity-90 transition"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditMode(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 font-semibold hover:opacity-90 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <>
+            <h2 className="text-2xl font-semibold text-primary mb-4">{user.firstName} {user.lastName}</h2>
+            <div className="space-y-2 text-gray-700">
+              {['email', 'age', 'gender', 'phone'].map((field) => (
+                <p key={field}><strong className="capitalize">{field}:</strong> {user[field]}</p>
+              ))}
             </div>
             <button
               onClick={() => setEditMode(true)}
-              className="mt-6 px-4 py-2 bg-secondary text-white font-semibold rounded-lg shadow-md hover:opacity-70 transition-colors"
+              className="mt-6 px-4 py-2 bg-secondary text-white font-semibold hover:opacity-90 transition"
             >
               Edit
             </button>
-          </div>
-        </>
-      )}
+            <button
+              onClick={() => handleDelete()}
+              className="mt-6 mx-2 px-4 py-2 bg-red-800 text-white font-semibold hover:opacity-90 transition"
+            >
+              Delete
+            </button>
+          </>
+        )}
+      </div>
     </main>
   );
 }

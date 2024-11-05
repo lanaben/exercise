@@ -16,6 +16,7 @@ app.add_middleware(
 
 app.include_router(user_router, prefix="/users", tags=["users"])
 
+# # This was used to fill the database with users
 # @app.on_event("startup")
 # def startup_event():
 #     insert_users()
