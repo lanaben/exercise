@@ -9,7 +9,7 @@ function Sidebar({ users, onUserSelect }) {
           <li
             key={user.id}
             onClick={() => onUserSelect(user)}
-            className="bg-primary text-white p-4 cursor-pointer hover:opacity-90 border-4 border-border border-double transition"
+            className="bg-primary text-white p-4 cursor-pointer hover:opacity-90 border-4 border-secondary border-double transition"
           >
             <h3 className="font-semibold">{user.firstName} {user.lastName}</h3>
             <p>{user.email}</p>
